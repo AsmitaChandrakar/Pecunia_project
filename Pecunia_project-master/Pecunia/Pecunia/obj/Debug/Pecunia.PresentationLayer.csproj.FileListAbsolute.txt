@@ -1,0 +1,2 @@
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia\obj\Debug\Pecunia.PresentationLayer.csprojAssemblyReference.cache
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia\obj\Debug\Pecunia.PresentationLayer.csproj.CoreCompileInputs.cache

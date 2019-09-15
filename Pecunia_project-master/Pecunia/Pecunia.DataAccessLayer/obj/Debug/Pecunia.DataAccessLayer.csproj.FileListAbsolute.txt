@@ -1,0 +1,11 @@
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.DataAccessLayer\bin\Debug\Pecunia.DataAccessLayer.dll
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.DataAccessLayer\bin\Debug\Pecunia.DataAccessLayer.pdb
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.DataAccessLayer\bin\Debug\Pecunia.Entities.dll
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.DataAccessLayer\bin\Debug\Pecunia.Exceptions.dll
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.DataAccessLayer\bin\Debug\Pecunia.Entities.pdb
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.DataAccessLayer\bin\Debug\Pecunia.Exceptions.pdb
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.DataAccessLayer\obj\Debug\Pecunia.DataAccessLayer.csprojAssemblyReference.cache
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.DataAccessLayer\obj\Debug\Pecunia.DataAccessLayer.csproj.CoreCompileInputs.cache
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.DataAccessLayer\obj\Debug\Pecunia.DataAccessLayer.csproj.CopyComplete
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.DataAccessLayer\obj\Debug\Pecunia.DataAccessLayer.dll
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.DataAccessLayer\obj\Debug\Pecunia.DataAccessLayer.pdb

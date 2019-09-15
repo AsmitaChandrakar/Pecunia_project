@@ -1,0 +1,6 @@
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.Exceptions\bin\Debug\Pecunia.Exceptions.dll
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.Exceptions\bin\Debug\Pecunia.Exceptions.pdb
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.Exceptions\obj\Debug\Pecunia.Exceptions.csprojAssemblyReference.cache
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.Exceptions\obj\Debug\Pecunia.Exceptions.csproj.CoreCompileInputs.cache
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.Exceptions\obj\Debug\Pecunia.Exceptions.dll
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.Exceptions\obj\Debug\Pecunia.Exceptions.pdb

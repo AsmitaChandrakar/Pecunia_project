@@ -1,0 +1,6 @@
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.Entities\bin\Debug\Pecunia.Entities.dll
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.Entities\bin\Debug\Pecunia.Entities.pdb
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.Entities\obj\Debug\Pecunia.Entities.csprojAssemblyReference.cache
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.Entities\obj\Debug\Pecunia.Entities.csproj.CoreCompileInputs.cache
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.Entities\obj\Debug\Pecunia.Entities.dll
+C:\Users\hp\source\repos\Pecunia_project-master\Pecunia\Pecunia.Entities\obj\Debug\Pecunia.Entities.pdb
