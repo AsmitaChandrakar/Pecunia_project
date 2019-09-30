@@ -1,0 +1,25 @@
+create database PecuniaBanking
+go
+
+use PecuniaBanking
+GO 
+CREATE SCHEMA Accounts
+go
+
+CREATE TABLE Accounts.Customer
+( CustomerID  Uniqueidentifier primary key,
+  CustomerNumber char(10) not null, 
+  CustomerName   varchar(50) not null,
+  CustomerMobile char(10) not null,
+  CustomerAddress varchar(200) not null,
+  CustomerAadharNumber char(12) not null,
+  CustomerPANNumber char(10) not null,
+  CustomerGender varchar(12) not null,
+  CustomerDOB    datetime,
+  Email       varchar(50) not null,
+  WorkExperience decimal not null,
+  AnnualIncome   decimal not null,
+  CreationDateTime  datetime not null,
+  LastModified    datetime
+  )
+
