@@ -1,0 +1,325 @@
+Use [Great Outdoors]
+GO
+
+
+DROP TABLE GreatOutdoors.OrderDetails;
+
+Create Table GreatOutdoors.OrderDetails
+(
+OrderDetailID varchar(255) NOT NULL PRIMARY KEY,
+OrderID varchar(255) NOT NULL,
+ProductID varchar(255) NOT NULL,
+Quantity smallint NOT NULL CHECK (Quantity > 0),
+DiscountedUnitPrice int NOT NULL CHECK (DiscountedUnitPrice>0),
+TotalPrice int NOT NULL CHECK (TotalPrice>0),
+GiftPacking bit Default 0,
+AddressID varchar(255) NOT NULL
+)
+GO
+--CREATED TABLE WITH VARCHAR OF ORDERDETAILS
+
+CREATE TABLE GreatOutdoors.Orders
+(
+OrderID varchar(255) PRIMARY KEY,
+RetailerID varchar(255) NULL,
+SalesmanID varchar(255) NULL,
+TotalQuantity smallint NOT NULL CHECK (TotalQuantity > 0),
+TotalAmount Money NOT NULL CHECK (TotalAmount>0),
+ChannelOfSale char(7) NOT NULL CHECK (ChannelOfSale = 'Online' OR ChannelOfSale='Offline'),
+CurrentStatus varchar(2) NOT NULL,
+OrderDateTime datetime NOT NULL
+)
+GO
+
+--CREATED TABLE ORDERS WITH VARCHAR
+
+Create Procedure GreatOutdoors.AddOrderDetails(@orderDetailID varchar(255), @orderID varchar(255),@productID varchar(255), @quantity smallint, @discountedUnitPrice int, @totalPrice int, @giftPacking bit, @addressID varchar(255))
+as
+begin 
+if @orderDetailID is null OR @orderDetailID = ' '
+throw 5001,'Invalid Order Detail ID',1
+if @orderID is null OR @orderID = ' '
+throw 5001,'Invalid Order ID',2
+if @productID is null OR @productID = ' '
+throw 5001, 'Invalid Product ID',3
+if @quantity = 0 
+throw 5001,'Quantity Entered is 0',4
+if @discountedUnitPrice = 0
+throw 5001, 'Invalid Discounted Price',5
+if @totalPrice = 0
+throw 5001,'Invalid Total Price',6
+if @giftPacking != 0 OR @giftPacking!=1 
+throw 5001,'Invalid Gift Packing',7
+if @addressID is null OR @addressID = ' '
+throw 5001, 'Invalid Address ID',0 
+INSERT INTO GreatOutdoors.OrderDetails(OrderDetailID, OrderID, ProductID, Quantity, DiscountedUnitPrice, TotalPrice, GiftPacking, AddressID) 
+VALUES(@orderDetailID, @orderID, @productID, @quantity, @discountedUnitPrice, @totalPrice, @giftPacking, @addressID)
+end
+GO
+--CREATED PROCEDURE
+
+Create Procedure GreatOutdoors.GetOrderDetailsByOrderID(@orderID VARCHAR(255))
+as
+begin
+begin try
+Select * from GreatOutdoors.OrderDetails where OrderID = @orderID
+end try
+begin catch
+ PRINT @@ERROR;
+ throw 5000,'Invalid values fetched.',1
+ return 0
+end catch
+end
+GO
+--CREATED PROCEDURE
+
+Create Procedure GreatOutdoors.GetOrderDetailsByProductID(@productID VARCHAR(255))
+as
+begin
+begin try
+Select * from GreatOutdoors.OrderDetails where ProductID = @productID
+end try
+begin catch
+ PRINT @@ERROR;
+ throw 5000,'Invalid values fetched.',2
+ return 0
+end catch
+end
+GO
+--created procedure
+
+Create Procedure GreatOutdoors.DeleteOrderDetails(@orderID VARCHAR(255), @productID VARCHAR(255))
+as
+begin
+begin try
+DELETE FROM GreatOutdoors.OrderDetails WHERE OrderID = @orderID AND ProductID = @productID
+end try
+begin catch
+ PRINT @@ERROR;
+ throw 5000,'Values not deleted.',3
+ return 0
+end catch
+end
+GO
+--created procedure
+--------------------------------------------------------------------------------------------------
+
+Create Procedure GreatOutdoors.AddOrder(@orderID varchar(255), @retailerID varchar(255),@salesmanID varchar(255), @totalQuantity int, @totalAmount money, @channelOfSale char(7), @currentStatus varchar(2), @orderDateTime datetime)
+as
+begin 
+if @orderID is null OR @orderID = ' '
+throw 5002,'Invalid Order ID',1
+if @retailerID = ' '
+throw 5002,'Invalid Retailer ID',2
+if  @salesmanID = ' '
+throw 5002, 'Invalid Salesman ID',3
+if @totalQuantity = 0 
+throw 5002,'Total Quantity Entered is 0',4
+if @totalAmount = 0
+throw 5002, 'Invalid Total Amount',5
+if @channelOfSale != 'Offline' OR @channelOfSale != 'Online'
+throw 5002,'Invalid Channel Of Sale',6
+if @currentStatus is null OR @currentStatus = ' ' 
+throw 5002,'Invalid Status Passed ',7
+if @orderDateTime is null
+throw 5002, 'Date Time cannot be null.',0 
+if @retailerID is null AND @salesmanID is null
+throw 5002, 'Both retailerID and salesmanID are null. ',8
+if @salesmanID is NULL OR @retailerID is null
+ begin
+ INSERT INTO GreatOutdoors.Orders(OrderID, RetailerID, SalesmanID, TotalQuantity, TotalAmount, ChannelOfSale, CurrentStatus, OrderDateTime) 
+ VALUES(@orderID, @retailerID, @salesmanID, @totalQuantity, @totalAmount, @channelOfSale, @currentStatus, @orderDateTime)
+ end
+end
+GO
+--CREATED PROCEDURE FOR ORDER ID
+
+Create Procedure GreatOutdoors.GetOrdersByOrderID(@orderID varchar(255))
+as
+begin
+begin try
+Select * from GreatOutdoors.Orders where OrderID = @orderID
+end try
+begin catch
+ PRINT @@ERROR;
+ throw 5005,'Invalid values fetched.',2
+ return 0
+end catch
+end
+GO
+--created procedure
+
+Create Procedure GreatOutdoors.GetOrdersbyRetailerID(@retailerID VARCHAR(255))
+as
+begin
+begin try
+Select * from GreatOutdoors.Orders where RetailerID = @retailerID
+end try
+begin catch
+ PRINT @@ERROR;
+ throw 5005,'Invalid values fetched.',2
+ return 0
+end catch
+end
+GO
+--created procedure
+
+
+Create Procedure GreatOutdoors.GetOrdersBySalesmanID(@salesmanID VARCHAR(255))
+as
+begin
+begin try
+Select * from GreatOutdoors.Orders where SalesmanID = @salesmanID
+end try
+begin catch
+ PRINT @@ERROR;
+ throw 5005,'Invalid values fetched.',2
+ return 0
+end catch
+end
+GO
+--created procedure
+
+Create Procedure GreatOutdoors.GetOrderOnlineSold(@channelOfSale char(7))
+as
+begin
+begin try
+set @channelOfSale = 'Online'
+Select * from GreatOutdoors.Orders where ChannelOfSale= @channelOfSale
+end try
+begin catch
+ PRINT @@ERROR;
+ throw 5005,'Invalid values fetched.',2
+ return 0
+end catch
+end
+GO
+--created procedure
+
+
+Create Procedure GreatOutdoors.GetOrderOfflineSold(@channelOfSale char(7))
+as
+begin
+begin try
+set @channelOfSale = 'Offline'
+Select * from GreatOutdoors.Orders where ChannelOfSale= @channelOfSale
+end try
+begin catch
+ PRINT @@ERROR;
+ throw 5005,'Invalid values fetched.',2
+ return 0
+end catch
+end
+GO
+--created procedure
+
+
+
+
+Create Procedure GreatOutdoors.GetOrderForOfflineSold(@channelOfSale char(7), @currentStatus varchar(2))
+as
+begin
+begin try
+set @channelOfSale = 'Offline'
+set @currentStatus = ''
+Select * from GreatOutdoors.Orders where ChannelOfSale= @channelOfSale AND CurrentStatus = 0
+end try
+begin catch
+ PRINT @@ERROR;
+ throw 5005,'Invalid values fetched.',2
+ return 0
+end catch
+end
+GO
+--created procedure
+
+
+
+Create Procedure GreatOutdoors.GetOrderByStatus(@currentStatus varchar(2))
+as
+begin
+begin try
+Select * from GreatOutdoors.Orders where CurrentStatus= @currentStatus
+end try
+begin catch
+ PRINT @@ERROR;
+ throw 5005,'Invalid values fetched.',2
+ return 0
+end catch
+end
+GO
+--created procedure
+
+
+Create Procedure GreatOutdoors.UpdateOrderAddress(@addressID varchar(255), @orderID varchar(255), @productID varchar(255))
+as
+begin
+begin try
+UPDATE GreatOutdoors.OrderDetails
+SET AddressID = @addressID
+WHERE OrderID = @orderID AND ProductID = @productID    
+end try
+begin catch
+ PRINT @@ERROR;
+ throw 5006,'Address Not Updated.',1
+ return 0
+end catch
+end
+GO
+--created procedure
+
+
+
+Create Procedure GreatOutdoors.UpdateOrderStatus( @orderID varchar(255), @currentStatus varchar(2))
+as
+begin
+begin try
+UPDATE GreatOutdoors.Orders
+SET CurrentStatus = @currentStatus
+WHERE OrderID = @orderID     
+end try
+begin catch
+ PRINT @@ERROR;
+ throw 5006,'Status Not Updated.',2
+ return 0
+end catch
+end
+GO
+--created procedure
+
+
+
+Create Procedure GreatOutdoors.DeleteOrder(@orderID VARCHAR(255))
+as
+begin
+begin try
+DELETE FROM GreatOutdoors.Orders WHERE OrderID = @orderID 
+end try
+begin catch
+ PRINT @@ERROR;
+ throw 5000,'Values not deleted.',3
+ return 0
+end catch
+end
+GO
+
+--------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+INSERT INTO GreatOutdoors.OrderDetails values(2,'1','1',2,20,40,0,1)
+
+DELETE FROM GreatOutdoors.OrderDetails WHERE  OrderDetailID = 2
