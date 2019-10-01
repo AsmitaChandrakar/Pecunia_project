@@ -1,0 +1,56 @@
+create database PecuniaBanking
+go
+
+use PecuniaBanking
+GO 
+CREATE SCHEMA Accounts
+go
+
+CREATE TABLE Accounts.Customer
+( CustomerID  Uniqueidentifier primary key,
+  CustomerNumber char(6) not null, 
+  CustomerName   varchar(40) not null,
+  CustomerMobile char(10) not null,
+  CustomerAddress varchar(200) not null,
+  CustomerAadharNumber char(12) not null,
+  CustomerPANNumber char(10) not null,
+  CustomerGender varchar(12) not null,
+  CustomerDOB    datetime,
+  Email       varchar(50) not null,
+  WorkExperience decimal not null,
+  AnnualIncome   decimal not null,
+  CreationDateTime  datetime not null,
+  LastModified    datetime not null
+  )
+  create procedure 
+  AddCustomer(@CustomerName varchar(40) ,@CustomerMobile char(10) ,@CustomerAddress varchar(200),@CustomerAadharNumber char(12) ,@CustomerPANNumber char(10),@CustomerGender varchar(12) , @CustomerDOB DateTime ,@Email varchar(50),@WorkExperience decimal,@AnnualIncome decimal)
+  as
+begin 
+if(@CustomerName IS NULL || ))
+	insert into Accounts.Customer(CustomerName,CustomerMobile,CustomerAddress,CustomerAadharNumber,CustomerPANNumber,CustomerGender,CustomerDOB,Email)
+		values (@CustomerName,@CustomerMobile,@CustomerAddress,@CustomerAadharNumber,@CustomerPANNumber,@CustomerGender,@CustomerDOB,@Email)
+end
+
+create procedure ViewCustomer(@CustomerNumber char(10)) 
+as
+begin 
+	select * from Accounts.Customer where CustomerNumber= @CustomerNumber
+end
+
+create procedure UpdateCustomer(@CustomerNumber char(6),@CustomerName varchar(40),@CustomerMobile char(10) ,@Email varchar(50),@CustomerAddress varchar(200) ,@LastModified DateTime) 
+as
+begin 
+
+	 update Accounts.Customer
+		set
+
+		CustomerName=@CustomerName,
+		CustomerMobile=@CustomerMobile,
+		Email=@Email,
+		CustomerAddress=@CustomerAddress,
+		LastModified=@LastModified
+
+        where CustomerNumber=@CustomerNumber
+end
+
+
