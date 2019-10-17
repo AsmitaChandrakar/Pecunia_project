@@ -1,0 +1,62 @@
+select*from TeamE.RegularAccount
+
+use [13th Aug CLoud PT Immersive]
+go
+--Created by Asmita Chandrakar
+  --Procedure to Add Customer
+  drop procedure TeamE.AddsCustomer
+  create procedure 
+  TeamE.AddsCustomer(@CustomerName varchar(40) ,@CustomerMobile char(10) ,@CustomerAddress varchar(200),@CustomerAadharNumber char(12) ,@CustomerPANNumber char(10),@CustomerGender varchar(12) , @CustomerDOB DateTime ,@Email varchar(50),@WorkExperience decimal,@AnnualIncome decimal)
+  as
+begin 
+declare @CustomerID uniqueidentifier , @CustomerNumber char(6) , @cn int ,@CreationDateTime datetime ,@LastModified datetime 
+set @CustomerID = NewID()
+set @cn = (Select Count(*) from TeamE.Customer)
+set @CustomerNumber = (SELECT CONVERT(char(6), (100000 + @cn))) 
+set @CreationDateTime = SYSDATETIME()
+set @LastModified = SYSDATETIME()
+   
+
+	insert into TeamE.Customer(CustomerID,CustomerNumber,CustomerName,CustomerMobile,CustomerAddress,CustomerAadharNumber,CustomerPANNumber,CustomerGender,CustomerDOB,Email,WorkExperience,AnnualIncome,CreationDateTime,LastModified)
+		values (@CustomerID,@CustomerNumber,@CustomerName,@CustomerMobile,@CustomerAddress,@CustomerAadharNumber,@CustomerPANNumber,@CustomerGender,@CustomerDOB,@Email,@WorkExperience,@AnnualIncome,@CreationDateTime,@LastModified)
+SELECT @@RowCount ,@CustomerNumber
+end
+go
+
+exec TeamE.AddsCustomer 'Asmita' ,'9425567172', 'DGHSAFDJSA','123455556666','AAAAB1234L','Male','20-Jan-1997','akshay@gmail.com',3,4500000
+
+set  @CustomerID  = NewID();
+EXECUTE TeamE.AddsCustomer @CustomerID,'Akshay','9589291912','DGHSAFDJSA','123455556666','AAAAB1234L','Male','20-Jan-1997','akshay@gmail.com',346759,47658,'16-Oct-2019','16-Oct-2019'
+Select * From TeamE.Customer
+drop procedure TeamE.ShowCustomerByCustomerNumber
+
+
+
+create procedure TeamE.ShowCustomerByCustomerNumber(@CustomerNumber char(6)) 
+as
+begin 
+	select * from TeamE.Customer where CustomerNumber= @CustomerNumber
+end
+
+exec TeamE.ShowCustomerByCustomerNumber '100003'
+
+--Created by Asmita Chandrakar
+--Procedure to Update customer based on customer number
+create procedure TeamE.UpdatesCustomer(@CustomerNumber char(6),@CustomerName varchar(40),@CustomerMobile char(10) ,@Email varchar(50),@CustomerAddress varchar(200) ) 
+as
+begin 
+
+	 update TeamE.Customer
+		set
+		CustomerName=@CustomerName,
+		CustomerMobile=@CustomerMobile,
+		Email=@Email,
+		CustomerAddress=@CustomerAddress,
+		LastModified=sysdatetime()
+        where CustomerNumber=@CustomerNumber
+end
+drop procedure TeamE.UpdatesCustomer
+
+
+exec TeamE.UpdatesCustomer '100003','tarun','8816786789','fdsadert@ufyu.com','fgysfgiuery'
+go
