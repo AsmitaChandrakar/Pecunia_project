@@ -1,0 +1,266 @@
+using Pecunia.Entities;
+using Pecunia.Contracts.DALContracts;
+using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Data;
+namespace Pecunia.DataAcessLayer
+{
+    /// <summary>
+    /// Contains  methods for inserting, updating and searching creditcards from CreditCards collection.
+    /// </summary>
+
+    public class CreditCardDAL : CreditCardDALBase, IDisposable
+    { /// <summary>
+      /// Adds new credit card to CreditCards collection.
+      /// </summary>
+      /// <param name="creditCard">Contains the credit card details to be added.</param>
+      /// <returns>Determinates whether the new credit card is added.</returns>
+        public override bool AddCreditCardDAL(CreditCard creditCard)
+        {
+            bool creditCardIssued = false;
+
+            int rowsAffected = 0;
+            try
+            {
+
+
+
+                creditCard.CardIssueDate = DateTime.Now;
+                creditCard.LastModifiedDate = DateTime.Now;
+                DateTime ExDate = creditCard.CardIssueDate.AddYears(5);
+                double year = Convert.ToInt32(ExDate.ToString("yyyy"));
+                double month = Convert.ToInt32(ExDate.ToString("MM"));
+                creditCard.ExpiryMMYYYY = Convert.ToString(month) + "/" + Convert.ToString(year);
+                SqlConnection sqlConn = new SqlConnection(@"Data Source = ndamssql\sqlilearn; Initial Catalog = 13th Aug CLoud PT Immersive; User ID = sqluser; Password = sqluser");
+                sqlConn.Open();
+                string a = "[13th Aug CLoud PT Immersive].TeamE.AddCreditCard";
+                SqlCommand cmd = new SqlCommand(a, sqlConn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                // cmd.Parameters.AddWithValue("@creditCardID", creditCard.CreditCardID);
+                cmd.Parameters.Clear();
+                cmd.Parameters.AddWithValue("@custID", creditCard.CustomerID);
+                cmd.Parameters.AddWithValue("@custName", creditCard.CustomerNameAsPerCard);
+                cmd.Parameters.AddWithValue("@creditLimit", creditCard.CreditLimit);
+                cmd.Parameters.AddWithValue("@expiry", creditCard.ExpiryMMYYYY);
+                cmd.Parameters.AddWithValue("@cardType", creditCard.CardType);
+                cmd.Parameters.AddWithValue("@cardStatus", creditCard.CardStatus);
+                cmd.Parameters.AddWithValue("@cardIssueDate", creditCard.CardIssueDate);
+                cmd.Parameters.AddWithValue("@lastModifiedDate", creditCard.LastModifiedDate);
+
+
+                SqlDataReader sqlDataReader = cmd.ExecuteReader();
+
+                //if (!sqlDataReader.HasRows)
+                //{
+                //    return false;
+                //}
+                if (sqlDataReader.Read())
+                {
+                    rowsAffected = (int)(sqlDataReader.GetValue(0));
+                    creditCard.CardNumber = (string)(sqlDataReader.GetValue(1));
+                    creditCard.CreditCardID = (Guid)(sqlDataReader.GetValue(2));
+                }
+                sqlConn.Close();
+
+                if (rowsAffected != 0)
+                {
+                    creditCardIssued = true;
+                }
+
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return creditCardIssued;
+
+        }
+        /// <summary>
+        /// Returns credit card list
+        /// </summary>
+        /// <returns> Returns the list of credit  cards</returns>
+        public override List<CreditCard> GetCreditCardListDAL()
+        {
+            List<CreditCard> creditCardsList = new List<CreditCard>();
+            SqlConnection sqlConn = new SqlConnection(Properties.Settings.Default.dbConnection);
+            sqlConn.Open();
+            DataSet dtSet = new DataSet();
+            SqlCommand cmd = new SqlCommand("TeamE.GetAllCreditCards", sqlConn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            SqlDataAdapter sqlDataAdapter = new SqlDataAdapter("TeamE.GetAllCreditCards", sqlConn);
+            SqlCommandBuilder sqlCommandBuilder = new SqlCommandBuilder(sqlDataAdapter);
+            sqlDataAdapter.Fill(dtSet);
+            DataRow dataRow;
+            for (int i = 0; i < dtSet.Tables[0].Rows.Count; i++)
+            {
+                dataRow = dtSet.Tables[0].Rows[i];
+                CreditCard creditCard = new CreditCard();
+                creditCard.CreditCardID = new Guid(Convert.ToString(dataRow["CreditCardID"]));
+                creditCard.CustomerID = new Guid(Convert.ToString(dataRow["CustomerID"]));
+                creditCard.CustomerNameAsPerCard = Convert.ToString(dataRow["CustomerNameAsPerCard"]);
+                creditCard.CardNumber = Convert.ToString(dataRow["CardNumber"]);
+                creditCard.CreditLimit = Convert.ToDouble(dataRow["CreditLimit"]);
+                creditCard.ExpiryMMYYYY = Convert.ToString(dataRow["ExpiryMMYYYY"]);
+                creditCard.CardType = Convert.ToString(dataRow["CardType"]);
+                creditCard.CardStatus = Convert.ToString(dataRow["CardStatus"]);
+                creditCard.CardIssueDate = Convert.ToDateTime(dataRow["CardIssueDate"]);
+                creditCard.LastModifiedDate = Convert.ToDateTime(dataRow["LastModifiedDate"]);
+
+                creditCardsList.Add(creditCard);
+
+            }
+            sqlConn.Close();
+            return creditCardsList;
+        }
+        /// <summary>
+        /// Updates the status of credit card
+        /// </summary>
+        /// <param name="updateCreditCard">Contains the creditcard object for which we need to change status</param>
+
+        /// <returns>Returns bool value if updated or not</returns>
+        public override bool UpdateCreditCardStatusDAL(CreditCard updateCreditCard)
+        {
+            bool creditCardStatusChanged = false;
+            try
+            {
+                CreditCard matchingCreditCard = GetCreditCardByCreditCardNumberDAL(updateCreditCard.CardNumber);
+                if (matchingCreditCard != null)
+                {
+
+                    matchingCreditCard.CardStatus = updateCreditCard.CardStatus;
+                    matchingCreditCard.LastModifiedDate = DateTime.Now;
+                    SqlConnection sqlConn = new SqlConnection(Properties.Settings.Default.dbConnection);
+                    sqlConn.Open();
+                    SqlCommand cmd = new SqlCommand("TeamE.UpdateCreditCard", sqlConn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Clear();
+                    cmd.Parameters.AddWithValue("@cardNumber", matchingCreditCard.CardNumber);
+                    cmd.Parameters.AddWithValue("@cardStatus", matchingCreditCard.CardStatus);
+                    cmd.Parameters.AddWithValue("@lastModifiedDate", matchingCreditCard.LastModifiedDate);
+
+                    cmd.ExecuteNonQuery();
+
+                    creditCardStatusChanged = true;
+                    sqlConn.Close();
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return creditCardStatusChanged;
+        }
+        /// <summary>
+        /// <summary>
+        /// Gets creditCard based on creditCardID.
+        /// </summary>
+        /// <param name="creditID">Represents CreditCardID to search.</param>
+        /// <returns>returns credit card details for respective credit card ID</returns>
+        public override CreditCard GetCreditCardByCreditCardNumberDAL(string cardNumber)
+        {
+            CreditCard searchCredit = new CreditCard();
+            try
+            {
+                SqlConnection sqlConn = new SqlConnection(Properties.Settings.Default.dbConnection);
+                sqlConn.Open();
+                SqlCommand cmd = new SqlCommand("TeamE.GetCreditCardByCreditCardNumber", sqlConn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.Clear();
+                Console.WriteLine(cardNumber);
+                cmd.Parameters.AddWithValue("@cardNumber", cardNumber);
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    searchCredit.CreditCardID = reader.GetGuid(0);
+                    searchCredit.CustomerID = reader.GetGuid(1);
+                    searchCredit.CustomerNameAsPerCard = reader.GetString(2);
+                    searchCredit.CardNumber = reader.GetString(3);
+                    searchCredit.CreditLimit = Convert.ToDouble(reader.GetValue(4));
+                    searchCredit.ExpiryMMYYYY = reader.GetString(5);
+                    searchCredit.CardType = reader.GetString(6);
+                    searchCredit.CardStatus = reader.GetString(7);
+                    searchCredit.CardIssueDate = reader.GetDateTime(8);
+                    searchCredit.LastModifiedDate = reader.GetDateTime(9);
+                }
+
+
+
+                sqlConn.Close();
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return searchCredit;
+        }
+        /// <summary>
+        /// Gets list of creditCards based on CustomerID.
+        /// </summary>
+        /// <param name="customerID">Represents CustomerID to search.</param>
+        /// <returns>returns list of credit cards details for respective CustomerID</returns>
+        public override List<CreditCard> GetCreditCardsByCustomerIDDAL(Guid customerID)
+        {
+            List<CreditCard> CreditCardsByCustomerID = new List<CreditCard>();
+            try
+            {
+
+                SqlConnection sqlConn = new SqlConnection(Properties.Settings.Default.dbConnection);
+                sqlConn.Open();
+                DataSet dtSet = new DataSet();
+                SqlCommand cmd = new SqlCommand("TeamE.GetCreditCardsByCustomerID", sqlConn);
+                cmd.CommandType = CommandType.StoredProcedure;
+               
+
+                SqlDataAdapter sqlDataAdapter = new SqlDataAdapter();
+                sqlDataAdapter.SelectCommand = cmd;
+
+                cmd.Parameters.AddWithValue("@custID", customerID);
+
+                sqlDataAdapter.Fill(dtSet);
+                DataRow dataRow;
+                for (int i = 0; i < dtSet.Tables[0].Rows.Count; i++)
+                {
+                    dataRow = dtSet.Tables[0].Rows[i];
+                    CreditCard creditCard = new CreditCard();
+                    creditCard.CreditCardID = new Guid(Convert.ToString(dataRow["CreditCardID"]));
+                    creditCard.CustomerID = new Guid(Convert.ToString(dataRow["CustomerID"]));
+                    creditCard.CustomerNameAsPerCard = Convert.ToString(dataRow["CustomerNameAsPerCard"]);
+                    creditCard.CardNumber = Convert.ToString(dataRow["CardNumber"]);
+                    creditCard.CreditLimit = Convert.ToDouble(dataRow["CreditLimit"]);
+                    creditCard.ExpiryMMYYYY = Convert.ToString(dataRow["ExpiryMMYYYY"]);
+                    creditCard.CardType = Convert.ToString(dataRow["CardType"]);
+                    creditCard.CardStatus = Convert.ToString(dataRow["CardStatus"]);
+                    creditCard.CardIssueDate = Convert.ToDateTime(dataRow["CardIssueDate"]);
+                    creditCard.LastModifiedDate = Convert.ToDateTime(dataRow["LastModifiedDate"]);
+
+                    CreditCardsByCustomerID.Add(creditCard);
+
+                 
+                }
+
+                sqlConn.Close();
+
+            }
+
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return CreditCardsByCustomerID;
+        }
+
+
+
+        /// <summary>
+        /// Clears unmanaged resources such as db connections or file streams.
+        /// </summary>
+        public void Dispose()
+        {
+            //No unmanaged resources currently
+        }
+
+    }
+}
