@@ -1,0 +1,406 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Pecunia.Entities;
+using Pecunia.Contracts.DALContracts;
+using Pecunia.Helpers;
+using System.Data.SqlClient;
+using System.Data;
+
+namespace Pecunia.DataAcessLayer
+{
+    /// <summary>
+    /// Contains data access layer methods for inserting, updating ,searching Customers from Customers collection.
+    /// </summary>
+    public class CustomerDAL : CustomerDALBase, IDisposable
+    {
+        /// <summary>
+        /// Adds new Customer to Customers collection.
+        /// </summary>
+        /// <param name="newCustomer">Contains the Customer details to be added.</param>
+        /// <returns>Determinates whether the new Customer is added.</returns>
+        public override bool AddCustomerDAL(Customer newCustomer)
+        {
+            
+            bool CustomerAdded = false;
+            int rowsAffected = 0;
+            //string customerNumber = null;
+            try
+            {
+                //newCustomer.CustomerID = Guid.NewGuid();
+                //newCustomer.CreationDateTime = DateTime.Now;
+                //newCustomer.LastModifiedDateTime = DateTime.Now;
+                //customerNumber = newCustomer.CustomerNumber;
+                //CustomerList.Add(newCustomer);
+                
+                SqlConnection cn = new SqlConnection(@"Data Source=ndamssql\sqlilearn;Initial Catalog=13th Aug CLoud PT Immersive;Persist Security Info=True;User ID=sqluser;Password=sqluser");
+                cn.Open();
+
+                string proc = "TeamE.AddsCustomer";
+                SqlCommand sqlcmd = new SqlCommand(proc, cn)
+                {
+                    CommandType = System.Data.CommandType.StoredProcedure
+                };
+                
+                sqlcmd.Parameters.AddWithValue("@CustomerName", newCustomer.CustomerName);
+                sqlcmd.Parameters.AddWithValue("@CustomerMobile", newCustomer.CustomerMobile);
+                sqlcmd.Parameters.AddWithValue("@CustomerAddress", newCustomer.CustomerAddress);
+                sqlcmd.Parameters.AddWithValue("@CustomerAadharNumber", newCustomer.CustomerAadharNumber);
+                sqlcmd.Parameters.AddWithValue("@CustomerPANNumber", newCustomer.CustomerPANNumber);
+                sqlcmd.Parameters.AddWithValue("@CustomerGender", newCustomer.CustomerGender);
+                sqlcmd.Parameters.AddWithValue("@CustomerDOB", newCustomer.CustomerDOB);
+                sqlcmd.Parameters.AddWithValue("@Email", newCustomer.Email);
+                sqlcmd.Parameters.AddWithValue("@WorkExperience", newCustomer.WorkExperience);
+                sqlcmd.Parameters.AddWithValue("@AnnualIncome", newCustomer.AnnualIncome);
+
+                SqlDataReader sqlDataReader = sqlcmd.ExecuteReader();
+
+                //if (!sqlDataReader.HasRows)
+                //{
+                //    return false;
+                //}
+                if (sqlDataReader.Read())
+                {
+                    rowsAffected = (int)(sqlDataReader.GetValue(0));
+                    newCustomer.CustomerNumber = (string)(sqlDataReader.GetValue(1));
+                    
+                }
+                cn.Close();
+
+                if (rowsAffected != 0)
+                {
+                    CustomerAdded = true;
+                }
+
+
+
+
+                //sqlcmd.ExecuteNonQuery();
+                //cn.Close();
+
+                //CustomerAdded = true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return CustomerAdded;
+        }
+
+        /// <summary>
+        /// Gets all Customers from the collection.
+        /// </summary>
+        /// <returns>Returns list of all Customers.</returns>
+        //public override List<Customer> GetAllCustomersDAL()
+        //{
+        //    return CustomerList;
+        //}
+
+        public override List<Customer> GetAllCustomersDAL()
+        {
+            List<Customer> customerslist = new List<Customer>();
+            SqlConnection sqlConn = new SqlConnection(@"Data Source=ndamssql\sqlilearn;Initial Catalog=13th Aug CLoud PT Immersive;Persist Security Info=True;User ID=sqluser;Password=sqluser");
+            sqlConn.Open();
+            DataSet dtSet = new DataSet();
+            SqlCommand cmd = new SqlCommand("TeamE.GetsAllCustomer", sqlConn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            SqlDataAdapter sqlDataAdapter = new SqlDataAdapter("TeamE.GetsAllCustomer", sqlConn);
+            SqlCommandBuilder sqlCommandBuilder = new SqlCommandBuilder(sqlDataAdapter);
+            sqlDataAdapter.Fill(dtSet);
+            DataRow dataRow;
+            for (int i = 0; i < dtSet.Tables[0].Rows.Count; i++)
+            {
+                dataRow = dtSet.Tables[0].Rows[i];
+                Customer customer = new Customer();
+                customer.CustomerID = new Guid(Convert.ToString(dataRow["CustomerID"]));
+                customer.CustomerNumber = Convert.ToString(dataRow["CustomerNumber"]);
+                customer.CustomerName = Convert.ToString(dataRow["CustomerName"]);
+                customer.CustomerMobile = Convert.ToString(dataRow["CustomerMobile"]);
+                customer.CustomerAddress = Convert.ToString(dataRow["CustomerAddress"]);
+                customer.CustomerAadharNumber = Convert.ToString(dataRow["CustomerAadharNumber"]);
+                customer.CustomerPANNumber = Convert.ToString(dataRow["CustomerPANNumber"]);
+                customer.CustomerGender = Convert.ToString(dataRow["CustomerGender"]);
+                customer.CustomerDOB = Convert.ToDateTime(dataRow["CustomerDOB"]);
+                customer.Email = Convert.ToString(dataRow["Email"]);
+                customer.WorkExperience = Convert.ToDouble(dataRow["WorkExperience"]);
+                customer.AnnualIncome = Convert.ToDouble(dataRow["AnnualIncome"]);
+                customer.CreationDateTime = Convert.ToDateTime(dataRow["CreationDateTime"]);
+                customer.LastModifiedDateTime = Convert.ToDateTime(dataRow["LastModified"]);
+                customerslist.Add(customer);
+
+            }
+            sqlConn.Close();
+            return customerslist;
+        }
+
+        /// <summary>
+        /// Gets Customer based on CustomerNumber.
+        /// </summary>
+        /// <param name="searchCustomerNumber">Represents CustomerNumber to search.</param>
+        /// <returns>Returns Customer object.</returns>
+        public override Customer GetCustomerByCustomerNumberDAL(string searchCustomerNumber)
+        {
+            Customer matchingCustomer =new Customer();
+            try
+            {
+
+              
+                //DataSet dtset = new DataSet();
+
+                //SqlDataAdapter sqlAdapt = new SqlDataAdapter();
+                //SqlCommandBuilder sqlbld = new SqlCommandBuilder(sqlAdapt);
+
+                   SqlConnection cn = new SqlConnection(@"Data Source=ndamssql\sqlilearn;Initial Catalog=13th Aug CLoud PT Immersive;Persist Security Info=True;User ID=sqluser;Password=sqluser");
+                    cn.Open();
+
+                    string proc = "TeamE.ShowCustomerByCustomerNumber";
+                    SqlCommand sqlcmd = new SqlCommand(proc, cn)
+                    {
+                        CommandType = System.Data.CommandType.StoredProcedure
+                    };
+                    sqlcmd.Parameters.AddWithValue("@CustomerNumber", searchCustomerNumber);
+                    SqlDataReader reader = sqlcmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        matchingCustomer.CustomerID = reader.GetGuid(0);
+                        matchingCustomer.CustomerNumber = reader.GetString(1);
+                        matchingCustomer.CustomerName = reader.GetString(2);
+                        matchingCustomer.CustomerMobile = reader.GetString(3);
+                        matchingCustomer.CustomerAddress = reader.GetString(4);
+                        matchingCustomer.CustomerAadharNumber = reader.GetString(5);
+                        matchingCustomer.CustomerPANNumber = reader.GetString(6);
+                        matchingCustomer.CustomerGender = reader.GetString(7);
+                        matchingCustomer.CustomerDOB = reader.GetDateTime(8);
+                    matchingCustomer.Email = reader.GetString(9);
+                    matchingCustomer.WorkExperience =Convert.ToDouble(reader.GetValue(10));
+                    matchingCustomer.AnnualIncome = Convert.ToDouble(reader.GetValue(11));
+                    matchingCustomer.CreationDateTime = reader.GetDateTime(12);
+                    matchingCustomer.LastModifiedDateTime = reader.GetDateTime(13);
+
+
+                }
+                reader.Close();
+                cn.Close();
+                    //sqlAdapt.Fill(dtset);
+                    //dtset.Tables[0].Rows[0]["CustomerName"] = txtName.Text;
+                    //sqlAdapt.Update(dtset);
+                    //dtset.Tables[0].AcceptChanges();
+                    //MessageBox.Show("Data Saved");
+               
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            //Console.WriteLine(dtset[0])
+            return matchingCustomer;
+        }
+
+
+        /// <summary>
+        /// Gets Customer based on CustomerID.
+        /// </summary>
+        /// <param name="searchCustomeID">Represents CustomerID to search.</param>
+        /// <returns>Returns Customer object.</returns>
+        public override Customer GetCustomerByCustomerIDDAL(Guid searchCustomerID)
+        {
+            Customer matchingCustomer = null;
+            try
+            {
+                //Find Customer based on searchCustomerID
+                matchingCustomer = CustomerList.Find(
+                    (item) => { return item.CustomerID == searchCustomerID; }
+                );
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return matchingCustomer;
+        }
+
+        /// <summary>
+        /// Gets Customer based on CustomerName.
+        /// </summary>
+        /// <param name="CustomerName">Represents CustomerName to search.</param>
+        /// <returns>Returns Customer object.</returns>
+        public override List<Customer> GetCustomersByNameDAL(string CustomerName)
+        {
+            List<Customer> matchingCustomers = new List<Customer>();
+            try
+            {
+                //Find All Customers based on CustomerName
+                matchingCustomers = CustomerList.FindAll(
+                    (item) => { return item.CustomerName.Equals(CustomerName, StringComparison.OrdinalIgnoreCase); }
+                );
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return matchingCustomers;
+        }
+
+        /// <summary>
+        /// Gets Customer based on email.
+        /// </summary>
+        /// <param name="email">Represents Customer's Email Address.</param>
+        /// <returns>Returns Customer object.</returns>
+        public override Customer GetCustomerByEmailDAL(string email)
+        {
+            Customer matchingCustomer = null;
+            try
+            {
+                //Find Customer based on Email 
+                matchingCustomer = CustomerList.Find(
+                    (item) => { return item.Email.Equals(email); }
+                );
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return matchingCustomer;
+        }
+        /// <summary>
+        /// Gets Customer based on Mobile number.
+        /// </summary>
+        /// <param name="mobile">Represents Customer's mobile number.</param>
+        /// <returns>Returns Customer object.</returns>
+        public override Customer GetCustomerByCustomerMobileDAL(string mobile)
+        {
+            Customer matchingCustomer = null;
+            try
+            {
+                //Find Customer based on Mobile Number
+                matchingCustomer = CustomerList.Find(
+                    (item) => { return item.CustomerMobile.Equals(mobile); }
+                );
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return matchingCustomer;
+        }
+        /// <summary>
+        /// Gets Customer based on Aadhar Number.
+        /// </summary>
+        /// <param name="aadhar">Represents Customer's Aadhar Number.</param>
+        /// <returns>Returns Customer object.</returns>
+        public override Customer GetCustomerByCustomerAadharNumberDAL(string aadhar)
+        {
+            Customer matchingCustomer = null;
+            try
+            {
+                //Find Customer based on Aadhar Number
+                matchingCustomer = CustomerList.Find(
+                    (item) => { return item.CustomerAadharNumber.Equals(aadhar); }
+                );
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return matchingCustomer;
+        }
+        /// <summary>
+        /// Gets Customer based on PAN number.
+        /// </summary>
+        /// <param name="pan">Represents Customer's PAN number.</param>
+        /// <returns>Returns Customer object.</returns>
+        public override Customer GetCustomerByCustomerPANNumberDAL(string pan)
+        {
+            Customer matchingCustomer = null;
+            try
+            {
+                //Find Customer based on PAN number
+                matchingCustomer = CustomerList.Find(
+                    (item) => { return item.CustomerPANNumber.Equals(pan); }
+                );
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return matchingCustomer;
+        }
+
+
+
+
+        /// <summary>
+        /// Updates Customer based on CustomerNumber.
+        /// </summary>
+        /// <param name="updateCustomer">Represents Customer details including Customermobile, CustomerName etc.</param>
+        /// <returns>Determinates whether the existing Customer is updated.</returns>
+        public override bool UpdateCustomerDAL(Customer updateCustomer)
+        {
+            bool CustomerUpdated = false;
+            try
+            {
+                ////Find Customer based on CustomerID
+                //Customer matchingCustomer = GetCustomerByCustomerNumberDAL(updateCustomer.CustomerNumber);
+
+                //if (matchingCustomer != null)
+                //{
+                //    //Update Customer details
+                    //ReflectionHelpers.CopyProperties(updateCustomer, matchingCustomer, new List<string>() { "CustomerName", "CustomerMobile", "CustomerAddress", "Email" });
+                    //matchingCustomer.LastModifiedDateTime = DateTime.Now;
+
+                //    CustomerUpdated = true;
+                //}
+
+                Customer matchingCustomer = GetCustomerByCustomerNumberDAL(updateCustomer.CustomerNumber);
+                //Console.WriteLine(matchingCustomer.CustomerNumber);
+               
+                //matchingCustomer.LastModifiedDate = DateTime.Now;
+                
+                if (matchingCustomer != null)
+                {
+                    matchingCustomer.CustomerName = updateCustomer.CustomerName;
+                    matchingCustomer.CustomerMobile = updateCustomer.CustomerMobile;
+                    matchingCustomer.Email = updateCustomer.Email;
+                    matchingCustomer.CustomerAddress = updateCustomer.CustomerAddress;
+                    SqlConnection cn = new SqlConnection(@"Data Source=ndamssql\sqlilearn;Initial Catalog=13th Aug CLoud PT Immersive;Persist Security Info=True;User ID=sqluser;Password=sqluser");
+                    cn.Open();
+                    SqlCommand cmd = new SqlCommand("TeamE.UpdatesCustomer", cn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.Clear();
+                    cmd.Parameters.AddWithValue("@CustomerNumber", matchingCustomer.CustomerNumber);
+                    cmd.Parameters.AddWithValue("@CustomerName", matchingCustomer.CustomerName);
+                    cmd.Parameters.AddWithValue("@CustomerMobile", matchingCustomer.CustomerMobile);
+                    cmd.Parameters.AddWithValue("@Email", matchingCustomer.Email);
+                    cmd.Parameters.AddWithValue("@CustomerAddress", matchingCustomer.CustomerAddress);
+                    cmd.ExecuteNonQuery();
+                    //int updated = Convert.ToInt32(cmd.ExecuteScalar());
+                    //Console.WriteLine(updated);
+                    //if (updated > 0) { CustomerUpdated = true; }
+                    CustomerUpdated = true;
+
+                    
+                    cn.Close();
+
+                }
+                
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            return CustomerUpdated;
+        }
+
+
+        /// <summary>
+        /// Clears unmanaged resources such as db connections or file streams.
+        /// </summary>
+        public void Dispose()
+        {
+            //No unmanaged resources currently
+        }
+    }
+
+}
